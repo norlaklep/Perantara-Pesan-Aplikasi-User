@@ -1,8 +1,6 @@
 const { bot } = require('../config/config');
 const User = require('../models/user');
-
-// In-memory storage for applications
-const applications = {};
+const Application = require('../models/application');
 
 // Function to send a message via Telegram
 function sendTelegramMessage(chatId, title, message) {
@@ -32,14 +30,33 @@ bot.onText(/\/start/, async (msg) => {
     }
 });
 
-// Register a new application
-function registerApplication(app_id, app_name) {
-    applications[app_id] = app_name;
+// Register a new application in the database
+async function registerApplication(app_id, app_name) {
+    try {
+        const [application, created] = await Application.findOrCreate({
+            where: { app_id: app_id },
+            defaults: { app_name: app_name }
+        });
+
+        if (created) {
+            console.log(`Application ${app_name} registered successfully.`);
+        } else {
+            console.log(`Application ${app_name} already registered.`);
+        }
+    } catch (error) {
+        console.error('Error registering application:', error);
+    }
 }
 
-// Get application name by ID
-function getApplicationName(app_id) {
-    return applications[app_id];
+// Get application name by ID from the database
+async function getApplicationName(app_id) {
+    try {
+        const application = await Application.findOne({ where: { app_id: app_id } });
+        return application ? application.app_name : null;
+    } catch (error) {
+        console.error('Error retrieving application:', error);
+        return null;
+    }
 }
 
 module.exports = {

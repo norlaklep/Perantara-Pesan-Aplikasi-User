@@ -1,7 +1,8 @@
 const sequelize = require('./database');
 const User = require('../models/user');
+const Application = require('../models/application');
 
-sequelize.sync({ force: false }) // Set to 'true' if you want to drop tables and recreate them
+sequelize.sync({ force: false })
     .then(() => {
         console.log('Database synced');
     })
